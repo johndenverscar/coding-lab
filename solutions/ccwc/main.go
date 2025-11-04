@@ -6,12 +6,14 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"unicode/utf8"
 )
 
 func main() {
 	countBytes := flag.Bool("c", false, "Count bytes")
 	countLines := flag.Bool("l", false, "Count lines")
 	countWords := flag.Bool("w", false, "Count words")
+	countChars := flag.Bool("m", false, "Count characters")
 
 	flag.Parse()
 
@@ -42,6 +44,11 @@ func main() {
 	if *countWords {
 		wordCount := countWordsInData(data)
 		fmt.Printf("%d %s\n", wordCount, filename)
+	}
+
+	if *countChars {
+		charCount := utf8.RuneCount(data)
+		fmt.Printf("%d %s\n", charCount, filename)
 	}
 }
 
