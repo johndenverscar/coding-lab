@@ -1,15 +1,18 @@
 import { Command } from 'commander';
 import { SecretScanner } from './scanner';
-import { Reporter } from './reporter';
+import { IReporter, ConsoleReporter, JSONReporter, SARIFReporter } from './reporter';
 import { GitHubClient } from './github-client';
 import { ScanOptions } from './types';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
 
+type OutputFormat = 'console' | 'json' | 'sarif';
+
 interface ScanCliOptions extends ScanOptions {
     token?: string;
     concurrency?: string;
+    format?: OutputFormat;
 }
 
 interface ScanResult {
@@ -18,11 +21,29 @@ interface ScanResult {
 }
 
 /**
+ * Creates a reporter based on the specified format.
+ */
+function createReporter(format: OutputFormat = 'console'): IReporter {
+    switch (format) {
+        case 'json':
+            return new JSONReporter();
+        case 'sarif':
+            return new SARIFReporter();
+        case 'console':
+        default:
+            return new ConsoleReporter();
+    }
+}
+
+/**
  * Performs a repository scan and generates a report.
  * Returns an exit code (0 for success, 1 for secrets found or error).
  * This function can be used independently of the CLI.
  */
-export async function performScan(options: ScanCliOptions): Promise<ScanResult> {
+export async function performScan(
+    options: ScanCliOptions,
+    reporter?: IReporter
+): Promise<ScanResult> {
     try {
         const concurrency = options.concurrency ? parseInt(options.concurrency, 10) : 10;
         const githubClient = new GitHubClient(options.token);
@@ -36,7 +57,9 @@ export async function performScan(options: ScanCliOptions): Promise<ScanResult> 
             branch: options.branch
         });
 
-        Reporter.generateReport(results);
+        // Use provided reporter or create default based on format
+        const selectedReporter = reporter || createReporter(options.format);
+        selectedReporter.generateReport(results);
 
         // Return exit code based on findings
         return {
@@ -66,6 +89,7 @@ program
     .option('-b, --branch <branch>', 'Branch to scan', 'main')
     .option('-t, --token <token>', 'GitHub token (or use GITHUB_TOKEN env)')
     .option('-c, --concurrency <number>', 'Number of concurrent file requests', '10')
+    .option('-f, --format <format>', 'Output format: console, json, sarif', 'console')
     .action(async (options: ScanCliOptions) => {
         const result = await performScan(options);
         process.exit(result.exitCode);
