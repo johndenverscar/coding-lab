@@ -68,59 +68,6 @@ export class JSONReporter implements IReporter {
     }
 }
 
-export class SARIFReporter implements IReporter {
-    generateReport(results: ScanResult[]): void {
-        const sarif = {
-            version: "2.1.0",
-            $schema: "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
-            runs: [{
-                tool: {
-                    driver: {
-                        name: "github-secret-scanner",
-                        version: "1.0.0",
-                        informationUri: "https://github.com/example/repo-scanner"
-                    }
-                },
-                results: results.map(r => ({
-                    ruleId: this.getRuleId(r.type),
-                    level: this.mapSeverity(r.severity),
-                    message: {
-                        text: `Potential ${r.type} detected`
-                    },
-                    locations: [{
-                        physicalLocation: {
-                            artifactLocation: {
-                                uri: r.file
-                            },
-                            region: {
-                                startLine: r.line,
-                                snippet: {
-                                    text: r.match
-                                }
-                            }
-                        }
-                    }]
-                }))
-            }]
-        };
-
-        console.log(JSON.stringify(sarif, null, 2));
-    }
-
-    private getRuleId(type: string): string {
-        return type.toLowerCase().replace(/\s+/g, '-');
-    }
-
-    private mapSeverity(severity: Severity): string {
-        const severityMap = {
-            [Severity.HIGH]: 'error',
-            [Severity.MEDIUM]: 'warning',
-            [Severity.LOW]: 'note'
-        };
-        return severityMap[severity];
-    }
-}
-
 // Legacy static class for backward compatibility
 export class Reporter {
     static generateReport(results: ScanResult[]): void {

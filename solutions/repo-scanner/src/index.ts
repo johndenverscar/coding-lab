@@ -1,13 +1,13 @@
 import { Command } from 'commander';
 import { SecretScanner } from './scanner';
-import { IReporter, ConsoleReporter, JSONReporter, SARIFReporter } from './reporter';
+import { IReporter, ConsoleReporter, JSONReporter } from './reporter';
 import { GitHubClient } from './github-client';
 import { ScanOptions } from './types';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
 
-type OutputFormat = 'console' | 'json' | 'sarif';
+type OutputFormat = 'console' | 'json'
 
 interface ScanCliOptions extends ScanOptions {
     token?: string;
@@ -27,8 +27,6 @@ function createReporter(format: OutputFormat = 'console'): IReporter {
     switch (format) {
         case 'json':
             return new JSONReporter();
-        case 'sarif':
-            return new SARIFReporter();
         case 'console':
         default:
             return new ConsoleReporter();
