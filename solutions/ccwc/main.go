@@ -1,14 +1,52 @@
 package main
 
 import (
-	"bufio"
-	"bytes"
 	"flag"
 	"fmt"
 	"io"
 	"os"
 	"unicode/utf8"
 )
+
+type Counts struct {
+	Lines int
+	Words int
+	Bytes int
+	Chars int
+}
+
+func isWhitespace(b byte) bool {
+	return b == ' ' || b == '\n' || b == '\t' || b == '\r' || b == '\f' || b == '\v'
+}
+
+func getCounts(data []byte) Counts {
+	counts := Counts{
+		Bytes: len(data),
+		Chars: utf8.RuneCount(data),
+	}
+
+	inWord := false
+	for _, b := range data {
+		if b == '\n' {
+			counts.Lines++
+		}
+
+		if isWhitespace(b) {
+			if inWord {
+				counts.Words++
+				inWord = false
+			}
+		} else {
+			inWord = true
+		}
+	}
+
+	if inWord {
+		counts.Words++
+	}
+
+	return counts
+}
 
 func main() {
 	countBytes := flag.Bool("c", false, "Count bytes")
@@ -40,60 +78,42 @@ func main() {
 		}
 	}
 
+	counts := getCounts(data)
+
 	noFlags := !*countBytes && !*countLines && !*countWords && !*countChars
 
 	if noFlags {
-		byteCount := len(data)
-		lineCount := countLinesInData(data)
-		wordCount := countWordsInData(data)
-		charCount := utf8.RuneCount(data)
-		fmt.Printf("%d %d %d %d %s\n", lineCount, wordCount, byteCount, charCount, filename)
+		fmt.Printf("%d %d %d %d %s\n", counts.Lines, counts.Words, counts.Bytes, counts.Chars, filename)
 		return
 	}
 
+	var results []int
+
 	if *countBytes {
-		byteCount := len(data)
-		fmt.Printf("%d %s\n", byteCount, filename)
+		results = append(results, counts.Bytes)
 	}
 
 	if *countLines {
-		lineCount := countLinesInData(data)
-		fmt.Printf("%d %s\n", lineCount, filename)
+		results = append(results, counts.Lines)
 	}
 
 	if *countWords {
-		wordCount := countWordsInData(data)
-		fmt.Printf("%d %s\n", wordCount, filename)
+		results = append(results, counts.Words)
 	}
 
 	if *countChars {
-		charCount := utf8.RuneCount(data)
-		fmt.Printf("%d %s\n", charCount, filename)
+		results = append(results, counts.Chars)
 	}
-}
 
-func countLinesInData(data []byte) int {
-	count := 0
-	for _, b := range data {
-		if b == '\n' {
-			count++
+	for i, result := range results {
+		if i > 0 {
+			fmt.Print(" ")
 		}
-	}
-	// If the file does not end with a newline, count the last line
-	if len(data) > 0 && data[len(data)-1] != '\n' {
-		count++
-	}
-	return count
-}
-
-func countWordsInData(data []byte) int {
-	scanner := bufio.NewScanner(bytes.NewReader(data))
-	scanner.Split(bufio.ScanWords)
-
-	count := 0
-	for scanner.Scan() {
-		count++
+		fmt.Print(result)
 	}
 
-	return count
+	if filename != "" {
+		fmt.Printf(" %s", filename)
+	}
+	fmt.Println()
 }
