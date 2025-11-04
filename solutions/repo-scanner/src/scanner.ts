@@ -1,14 +1,18 @@
-import { GitHubClient } from "./github-client";
+import { GitHubClient, IGitHubClient } from "./github-client";
 import { SECRET_PATTERNS } from "./patterns";
 import { ScanResult, ScanOptions } from "./types";
 
 export class SecretScanner {
-    private githubClient: GitHubClient;
+    private githubClient: IGitHubClient;
     private excludePatterns: RegExp[];
     private concurrencyLimit: number;
 
-    constructor(token?: string, excludePatterns: RegExp[] = [], concurrencyLimit: number = 10) {
-        this.githubClient = new GitHubClient(token);
+    constructor(
+        githubClient: IGitHubClient,
+        excludePatterns: RegExp[] = [],
+        concurrencyLimit: number = 10
+    ) {
+        this.githubClient = githubClient;
         this.excludePatterns = excludePatterns;
         this.concurrencyLimit = concurrencyLimit;
     }

@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 import { SecretScanner } from './scanner';
 import { Reporter } from './reporter';
+import { GitHubClient } from './github-client';
 import { ScanOptions } from './types';
 import * as dotenv from 'dotenv';
 
@@ -24,7 +25,8 @@ interface ScanResult {
 export async function performScan(options: ScanCliOptions): Promise<ScanResult> {
     try {
         const concurrency = options.concurrency ? parseInt(options.concurrency, 10) : 10;
-        const scanner = new SecretScanner(options.token, [], concurrency);
+        const githubClient = new GitHubClient(options.token);
+        const scanner = new SecretScanner(githubClient, [], concurrency);
 
         console.log(`Starting scan of ${options.owner}/${options.repo}/${options.branch || 'main'}...`);
 

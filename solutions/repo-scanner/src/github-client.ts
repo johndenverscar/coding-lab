@@ -1,6 +1,11 @@
 import { Octokit } from 'octokit';
 
-export class GitHubClient {
+export interface IGitHubClient {
+    getRepoTree(owner: string, repo: string, branch?: string): Promise<Array<{ path?: string; type?: string }>>;
+    getFileContent(owner: string, repo: string, path: string): Promise<string>;
+}
+
+export class GitHubClient implements IGitHubClient {
     private octokit: Octokit;
 
     constructor(token?: string) {
