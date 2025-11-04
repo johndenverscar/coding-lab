@@ -1,0 +1,99 @@
+# Operating Systems
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# Compiled binaries and executables
+*.exe
+*.out
+*.app
+*.o
+*.so
+*.dylib
+*.dll
+a.out
+
+# Go
+*.test
+*.prof
+go.sum
+vendor/
+bin/
+pkg/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+pip-log.txt
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+
+# Node.js / JavaScript
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+.npm
+.eslintcache
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+target/
+.gradle/
+build/
+
+# C/C++
+*.o
+*.a
+*.out
+*.exe
+*.obj
+*.elf
+
+# Rust
+target/
+Cargo.lock
+**/*.rs.bk
+
+# Test files and temporary data
+*.tmp
+*.temp
+*.log
+test_output/
+tmp/
+
+# Build directories
+build/
+dist/
+out/
