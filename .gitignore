@@ -99,3 +99,14 @@ dist/
 out/
 
 .env
+
+# AI Assistant files
+AGENTS.md
+CLAUDE.md
+*.claude.md
+.claude/
+.cursor/
+.aider*
+.copilot/
+ai-context.md
+AI_CONTEXT.md
