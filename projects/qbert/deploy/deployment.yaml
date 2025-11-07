@@ -7,7 +7,7 @@ metadata:
   namespace: default
 
 ---
-# ClusterRole - Permissions to read deployments across all namespaces
+# ClusterRole - Permissions to read and write deployments across all namespaces
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -15,7 +15,7 @@ metadata:
 rules:
 - apiGroups: ["apps"]
   resources: ["deployments"]
-  verbs: ["get", "list"]
+  verbs: ["get", "list", "update", "patch"]
 
 ---
 # ClusterRoleBinding - Bind the ClusterRole to the ServiceAccount
