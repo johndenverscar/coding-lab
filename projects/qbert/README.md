@@ -1,6 +1,6 @@
 # qbert
 
-A lightweight Kubernetes API server that provides HTTP endpoints to query deployment replica counts.
+A lightweight Kubernetes API server that provides HTTP endpoints to query and modify deployment replica counts.
 
 ## Prerequisites
 
@@ -156,6 +156,97 @@ curl http://localhost:30080/deployments/default/nonexistent/replicas
 curl http://localhost:30080/deployments/kube-system/coredns/replicas
 ```
 
+### 3. Set Deployment Replica Count
+
+Update the replica count for a specific deployment.
+
+**Endpoint:** `PUT /deployments/{namespace}/{name}/replicas`
+
+**Parameters:**
+- `namespace` - Kubernetes namespace (e.g., `default`, `kube-system`)
+- `name` - Deployment name (e.g., `nginx`, `qbert`)
+
+**Request Body:**
+```json
+{
+  "replicas": 5
+}
+```
+
+**Example - Success:**
+```bash
+curl -X PUT -H "Content-Type: application/json" \
+  -d '{"replicas": 5}' \
+  http://localhost:30080/deployments/default/nginx/replicas
+```
+
+**Response:**
+```json
+{
+  "message": "replica count updated successfully"
+}
+```
+
+**Example - Scale to Zero:**
+```bash
+curl -X PUT -H "Content-Type: application/json" \
+  -d '{"replicas": 0}' \
+  http://localhost:30080/deployments/default/nginx/replicas
+```
+
+**Example - Invalid Input (Negative Replicas):**
+```bash
+curl -X PUT -H "Content-Type: application/json" \
+  -d '{"replicas": -1}' \
+  http://localhost:30080/deployments/default/nginx/replicas
+```
+
+**Response:**
+```json
+{
+  "error": "replica count cannot be negative"
+}
+```
+
+**Example - Deployment Not Found:**
+```bash
+curl -X PUT -H "Content-Type: application/json" \
+  -d '{"replicas": 5}' \
+  http://localhost:30080/deployments/default/nonexistent/replicas
+```
+
+**Response:**
+```json
+{
+  "error": "deployment not found"
+}
+```
+
+**Verify the Change:**
+```bash
+# Check the deployment status
+kubectl get deployment nginx
+
+# Or query via API
+curl http://localhost:30080/deployments/default/nginx/replicas
+```
+
+## RBAC Permissions
+
+The qbert service requires specific Kubernetes permissions to function:
+
+**ServiceAccount**: `qbert`
+**ClusterRole Permissions**:
+- **apiGroups**: `apps`
+- **resources**: `deployments`
+- **verbs**: `get`, `list`, `update`, `patch`
+
+These permissions allow qbert to:
+- Read deployment information across all namespaces (`get`, `list`)
+- Modify deployment replica counts (`update`, `patch`)
+
+The RBAC configuration is included in [deploy/deployment.yaml](deploy/deployment.yaml) and is automatically applied when you deploy the service.
+
 ## Accessing the Service
 
 ### Local Development (NodePort)
@@ -166,4 +257,9 @@ The service is exposed as a NodePort on port 30080:
 # Direct access (no port-forward needed)
 curl http://localhost:30080/health
 curl http://localhost:30080/deployments/default/qbert/replicas
+
+# Set replica count
+curl -X PUT -H "Content-Type: application/json" \
+  -d '{"replicas": 3}' \
+  http://localhost:30080/deployments/default/qbert/replicas
 ```
