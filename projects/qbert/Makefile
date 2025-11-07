@@ -37,7 +37,7 @@ test-unit:
 ## test-integration: Run integration tests
 test-integration:
 	@echo "Running integration tests..."
-	@bash $(TEST_DIR)/run-integration.sh
+	go test -v ./$(TEST_DIR)/
 
 ## docker-build: Build Docker image
 docker-build:
